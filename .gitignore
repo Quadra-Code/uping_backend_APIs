@@ -1,0 +1,11 @@
+__init__.cpython-36.pyc
+functions.cpython-36.pyc
+.DS_Store
+__pycache__
+*.pyc
+.env
+.sqlite3
+.vscode
+images/
+venv/
+migrations/
