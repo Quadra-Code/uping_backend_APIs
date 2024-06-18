@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 #         return self.img_path
 
 class Country(models.Model):
+    class Meta:
+        ordering = ['name']
     name = models.CharField(max_length=45, blank=True, null=True)
     img = models.ImageField(upload_to='images/countries/')
 
@@ -17,16 +19,21 @@ class Country(models.Model):
         return self.name
 
 class CategoriesTree(models.Model):
+    class Meta:
+        ordering = ['id']
     name = models.CharField(max_length=255, blank=True, null=True)
     is_parent = models.BooleanField(default=False)
     level = models.IntegerField(default=0)
     parent_fk = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
-    img = models.ImageField(upload_to='images/categories/')
+    img = models.ImageField(upload_to='images/categories/', null=True, blank=True)
 
     def __str__(self):
         return self.name
 
 class Item(models.Model):
+    class Meta:
+        ordering = ['code']
+    code = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     category_fk = models.ForeignKey(CategoriesTree, on_delete=models.PROTECT)
     country_fk = models.ForeignKey(Country, on_delete=models.PROTECT)
@@ -45,6 +52,8 @@ class Item(models.Model):
         return self.name
 
 class ItemImg(models.Model):
+    class Meta:
+        ordering = ['id']
     item_fk = models.ForeignKey(Item, related_name='item_img', on_delete=models.CASCADE)
     img = models.ImageField(upload_to='images/item/')
 
@@ -52,6 +61,8 @@ class ItemImg(models.Model):
         return f'Image For Item {self.item_fk}'
 
 class Client(models.Model):
+    class Meta:
+        ordering = ['id']
     full_name = models.CharField(max_length=128, blank=True, null=True)
     main_phone = models.ForeignKey('ClientPhone', on_delete=models.CASCADE, null=True, blank=True)
     main_address = models.ForeignKey('ClientAddress', on_delete=models.CASCADE, null=True, blank=True)
@@ -61,6 +72,8 @@ class Client(models.Model):
         return self.full_name
 
 class ClientAddress(models.Model):
+    class Meta:
+        ordering = ['id']
     client_fk = models.ForeignKey(Client, related_name='client_addresses', on_delete=models.CASCADE)
     address = models.CharField(max_length=255)
     
@@ -68,6 +81,8 @@ class ClientAddress(models.Model):
         return self.address
 
 class ClientPhone(models.Model):
+    class Meta:
+        ordering = ['id']
     client_fk = models.ForeignKey(Client, related_name='client_phones', on_delete=models.CASCADE)
     phone = models.CharField(max_length=45)
     
@@ -75,6 +90,8 @@ class ClientPhone(models.Model):
         return self.phone
 
 class OrderMaster(models.Model):
+    class Meta:
+        ordering = ['code']
     STATE_CHOICES = [
         ('0', 'Pending'),
         ('1', 'Shipped'),
@@ -88,6 +105,7 @@ class OrderMaster(models.Model):
         ('4', 'Google Pay'),
         ('5', 'KNET Pay')
     ]
+    code = models.CharField(max_length=255, unique=True)
     client_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=45)
     paid = models.BooleanField(default=False)
@@ -106,6 +124,9 @@ class OrderMaster(models.Model):
         return f'Order Number {self.id}'
 
 class OrderDetail(models.Model):
+    class Meta:
+        ordering = ['code']
+    code = models.CharField(max_length=255, unique=True)
     order_master_fk = models.ForeignKey(OrderMaster, related_name='order_details', on_delete=models.PROTECT)
     item_fk = models.ForeignKey(Item, on_delete=models.PROTECT)
     quantity = models.IntegerField(blank=True, null=True)
